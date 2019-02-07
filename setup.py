@@ -42,29 +42,29 @@ print('\tDone.\n')
 #
 print('\n\tImport Nek5000...')
 
-# checkout revision 1093
+# checkout revision 19.02
 try:
-	assert os.path.exists('./nek5_svn')
+	assert os.path.exists('./Nek5000')
 except AssertionError:
 	print("\n\t*** Accept nek's certificate ***\n")
-	subprocess.call('svn co https://svn.mcs.anl.gov/repos/nek5 nek5_svn', shell=True)
-	os.chdir('./nek5_svn')
-	subprocess.call('svn up -r 1093', shell=True)
-	os.chdir('..')
+	subprocess.call('git clone https://github.com/Nek5000/Nek5000.git Nek5000', shell=True)
+	# os.chdir('./Nek5000')
+	# subprocess.call('svn up -r 1093', shell=True)
+	# os.chdir('..')
 
 # compile tools
 try:
-	assert os.path.isfile('nek5_svn/bin/genmap')
+	assert os.path.isfile('Nek5000/bin/genmap')
 except AssertionError:
-	os.chdir('./nek5_svn/trunk/tools')
+	os.chdir('./Nek5000/tools')
 	ofile = open('maketools',     'r')
 	nfile = open('maketools.tmp', 'w')
 	lines = ofile.readlines()
 	for line in lines:
 		if 'mkdir -p' in line:
-			nfile.write('mkdir -p ' + cwd + '/nek5_svn/bin\n')
+			nfile.write('mkdir -p ' + cwd + '/Nek5000/bin\n')
 		elif 'HOME' in line:
-			nfile.write('bin_nek_tools="' + cwd + '/nek5_svn/bin"\n')
+			nfile.write('bin_nek_tools="' + cwd + '/Nek5000/bin"\n')
 		elif 'mcmodel' in line:
 			if (pltfrm == 'Darwin'):
 				nline = line.replace('-mcmodel=medium', '')
@@ -75,15 +75,15 @@ except AssertionError:
 	nfile.close()
 	os.rename('maketools.tmp', 'maketools')
 	subprocess.call('/bin/bash maketools genmap n2to3 reatore2', shell=True)
-	os.chdir('../../../')
+	os.chdir('../..')
 
 # we do not need this as we use a modified makenek
 ## # copy makenek
 ## try:
 ## 	assert os.path.isfile('makenek')
 ## except AssertionError:
-## 	shutil.copy('nek5_svn/trunk/nek/makenek', 'makenek')
-if os.path.isfile('makenek'):
+## 	shutil.copy('Nek5000/nek/make', 'make')
+if os.path.isfile('make'):
 	ofile = open('makenek',     'r')
 	nfile = open('makenek.tmp', 'w')
 	lines = ofile.readlines()
@@ -122,7 +122,7 @@ except AssertionError:
 	tfile.write('base\n')
 	tfile.write('pipe\n')
 	tfile.close()
-	subprocess.call('./nek5_svn/bin/reatore2 < tmp.in', shell=True)
+	subprocess.call('./Nek5000/bin/reatore2 < tmp.in', shell=True)
 	os.remove('tmp.in')
 
 # setup pipe.rea
@@ -157,7 +157,7 @@ except AssertionError:
 	tfile.write('pipe\n')
 	tfile.write('0.05\n')
 	tfile.close()
-	subprocess.call('./nek5_svn/bin/genmap < tmp.in', shell=True)
+	subprocess.call('./Nek5000/bin/genmap < tmp.in', shell=True)
 	os.remove('tmp.in')
 
 # compile nek

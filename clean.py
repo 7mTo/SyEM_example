@@ -21,12 +21,12 @@ try:
 except OSError:
 	print('pipeMeshNek not present')
 
-# clean Nek5000 svn
+# clean Nek5000
 try:
-	shutil.rmtree('nek5_svn')
-	print('removing nek5_svn')
+	shutil.rmtree('Nek5000')
+	print('removing Nek5000')
 except OSError:
-	print('nek5_svn not present')
+	print('Nek5000 not present')
 
 try:
 	os.rename('makenek.bak', 'makenek')

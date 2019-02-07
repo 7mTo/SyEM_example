@@ -3,12 +3,13 @@
 pipeMeshNek
 generateMesh
 
-nek5_svn
+Nek5000
 makenek.bak
 
 *.rea
 *.re2
 *.map
+*.ma2
 makefile
 *.mod
 obj
