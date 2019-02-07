@@ -4,7 +4,7 @@
 
 # source path
 SOURCE_ROOT="$HOME/SyEM_example/Nek5000"
-SOURCE_ROOT2="$SOURCE_ROOT"
+SOURCE_ROOT2="$SOURCE_ROOT/core"
 
 # Fortran compiler
 F77="mpif77"
@@ -97,7 +97,7 @@ if [ -d $2 ] && [ $# -eq 2 ]; then
   echo "change source code directory to: ", $SOURCE_ROOT
 fi
 # do some checks and create makefile
-source $SOURCE_ROOT/makenek.inc
+source $SOURCE_ROOT2/makenek.inc
 # compile
 make -j4 -f makefile 2>&1 | tee compiler.out
 
