@@ -87,17 +87,17 @@ do
 done
 
 ###############################################################################
-# DONT'T TOUCH WHAT FOLLOWS !!!
+# DONT'T TOUCH WHAT FOLLOWS !!! :)
 ###############################################################################
 # assign version tag
-mver=1
+mver=18.0.0
 # overwrite source path with optional 2nd argument
 if [ -d $2 ] && [ $# -eq 2 ]; then
   SOURCE_ROOT="$2"
   echo "change source code directory to: ", $SOURCE_ROOT
 fi
 # do some checks and create makefile
-source $SOURCE_ROOT2/makenek.inc
+source $SOURCE_ROOT/core/makenek.inc
 # compile
 make -j4 -f makefile 2>&1 | tee compiler.out
 

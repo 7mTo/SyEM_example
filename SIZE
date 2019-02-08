@@ -124,3 +124,30 @@ c automatically added by makenek
       integer lelcmt
       parameter(lelcmt = 1  ) ! # of cmt elements 
 c IFCMT=FALSE  then lelcmt=1
+
+c automatically added by makenek
+      integer lelr
+      parameter (lelr=lelt) ! max number of local elements per restart file
+
+c automatically added by makenek
+      integer ldimt_proj
+      parameter(ldimt_proj=1) ! max auxiliary fields residual projection 
+
+c automatically added by makenek
+      integer optlevel,loglevel
+      common /lolevels/ optlevel,loglevel
+
+c automatically added by makenek
+      integer lcvx1,lcvy1,lcvz1,lcvelt
+      parameter (lcvx1=1,lcvy1=1,lcvz1=1,lcvelt=1) ! cvode arrays
+
+c automatically added by makenek
+      parameter (nsessmax=1)  ! max sessions to NEKNEK
+
+c automatically added by makenek
+      parameter (nmaxl_nn=
+     $          min(1+(nsessmax-1)*2*ldim*lxz*lelt,2*ldim*lxz*lelt))
+
+c automatically added by makenek
+      parameter (nfldmax_nn=
+     $          min(1+(nsessmax-1)*(ldim+1+ldimt),ldim+1+ldimt))
