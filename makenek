@@ -86,25 +86,61 @@ do
     cp "./src_nek/$file" "$NEK_SOURCE_ROOT/$file"
 done
 
+for srcfile in ./src_nek/*_DEF
+do
+    echo $srcfile
+    file="${srcfile##*/}"
+    echo safely moving "$file" to "$NEK_SOURCE_ROOT"
+    mv -n "$NEK_SOURCE_ROOT/$file" "$NEK_SOURCE_ROOT/$file.bkp"
+    cp "./src_nek/$file" "$NEK_SOURCE_ROOT/$file"
+done
+
 ###############################################################################
 # DONT'T TOUCH WHAT FOLLOWS !!! :)
 ###############################################################################
+
+set -e
+
 # assign version tag
 mver=18.0.0
+
+# set defaults
+: ${NEK_SOURCE_ROOT:="$HOME/SyEM_example/Nek5000"}
+: ${FC:="mpif77"}
+: ${CC:="mpicc"}
+: ${MPI:=1}
+: ${PROFILING:=1}
+: ${VISIT:=0}
+: ${PPLIST:=""}
+
 # overwrite source path with optional 2nd argument
 if [ -d $2 ] && [ $# -eq 2 ]; then
   NEK_SOURCE_ROOT="$2"
-  echo "change source code directory to: ", $NEK_SOURCE_ROOT
 fi
-# do some checks and create makefile
+
+NEK_SOURCE_ROOT=`cd $NEK_SOURCE_ROOT; pwd`
+echo 'using source path:' $NEK_SOURCE_ROOT
+
+# create makefile
 source $NEK_SOURCE_ROOT/core/makenek.inc
-# compile
-make -j4 -f makefile 2>&1 | tee compiler.out
+
+set -o pipefail
+# compile 3rd_party code
+make_3rd_party 2>&1 | tee -a compiler.out
+make -j4 -f makefile 2>&1 | tee -a compiler.out
+set +o pipefail
 
 ###############################################################################
 # RESTORE ORIGINAL SOURCE
 ###############################################################################
 for srcfile in ./src_nek/*.f
+do
+    file="${srcfile##*/}"
+    echo restoring original $file in $NEK_SOURCE_ROOT
+    mv $NEK_SOURCE_ROOT/$file.bkp $NEK_SOURCE_ROOT/$file
+done
+
+for srcfile in ./src_nek/*_DEF
 do
     file="${srcfile##*/}"
     echo restoring original $file in $NEK_SOURCE_ROOT
