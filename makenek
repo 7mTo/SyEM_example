@@ -86,15 +86,6 @@ do
     cp "./src_nek/$file" "$NEK_SOURCE_ROOT/$file"
 done
 
-for srcfile in ./src_nek/*_DEF
-do
-    echo $srcfile
-    file="${srcfile##*/}"
-    echo safely moving "$file" to "$NEK_SOURCE_ROOT"
-    mv -n "$NEK_SOURCE_ROOT/$file" "$NEK_SOURCE_ROOT/$file.bkp"
-    cp "./src_nek/$file" "$NEK_SOURCE_ROOT/$file"
-done
-
 ###############################################################################
 # DONT'T TOUCH WHAT FOLLOWS !!! :)
 ###############################################################################
@@ -134,13 +125,6 @@ set +o pipefail
 # RESTORE ORIGINAL SOURCE
 ###############################################################################
 for srcfile in ./src_nek/*.f
-do
-    file="${srcfile##*/}"
-    echo restoring original $file in $NEK_SOURCE_ROOT
-    mv $NEK_SOURCE_ROOT/$file.bkp $NEK_SOURCE_ROOT/$file
-done
-
-for srcfile in ./src_nek/*_DEF
 do
     file="${srcfile##*/}"
     echo restoring original $file in $NEK_SOURCE_ROOT
