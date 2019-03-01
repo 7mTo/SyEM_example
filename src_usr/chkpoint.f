@@ -13,17 +13,17 @@ c
 c     saving and reading necessary files
 c
 c     Parameters used by this set of subroutines:
-!     CHKPOINT:  
+!     CHKPOINT:
 !     IFCHKPTRST - if restart
 !     CHKPTSTEP - checkpiont dump frequency (number of time steps)
 c
 c     PARAM(66) - write format
 c     PARAM(67) - read format
 c
-c     In the case of multistep time-integration method one needs data 
-c     from NBDINP timestep. I use standard full_restart and 
-c     full_restart_save subroutines. There are four 'rs8...' reatart 
-c     files saved in double precission. Only .f format is supported. 
+c     In the case of multistep time-integration method one needs data
+c     from NBDINP timestep. I use standard full_restart and
+c     full_restart_save subroutines. There are four 'rs8...' reatart
+c     files saved in double precission. Only .f format is supported.
 c     In any case two sets of restart files (1-4;5-8) are created.
 c
 c     NOTICE!!!!
@@ -35,11 +35,10 @@ c
 !***********************************************************************
 !     read parameters checkpoint
       subroutine chkpt_param_in(fid)
-      implicit none
 
-      include 'SIZE_DEF'
+
+
       include 'SIZE'            !
-      include 'PARALLEL_DEF' 
       include 'PARALLEL'        ! ISIZE, WDSIZE, LSIZE,CSIZE
       include 'CHKPOINT'
 
@@ -71,9 +70,8 @@ c
 !***********************************************************************
 !     write parameters checkpoint
       subroutine chkpt_param_out(fid)
-      implicit none
 
-      include 'SIZE_DEF'
+
       include 'SIZE'            !
       include 'CHKPOINT'
 
@@ -97,7 +95,7 @@ c
 !***********************************************************************
 !     main checkpoint interface
       subroutine checkpoint
-      implicit none
+
 !-----------------------------------------------------------------------
 
       call checkpoint_init
@@ -109,19 +107,14 @@ c
 !***********************************************************************
 !     initialise checkpoint
       subroutine checkpoint_init
-      implicit none
 
-      include 'SIZE_DEF'
+
       include 'SIZE'            ! NID, NPERT
-      include 'TSTEP_DEF'
       include 'TSTEP'           ! IOSTEP, ISTEP
-      include 'INPUT_DEF'
       include 'INPUT'           ! SESSION, IFPERT, IFBASE
-!      include 'RESTART_DEF'
 !      include 'RESTART'
-      include 'PARALLEL_DEF'
       include 'PARALLEL'        ! ISIZE
-      include 'CHKPOINT'        ! CHKPTSTEP, IFCHKPTRST, CHKPTSET_O, CHKPTSET_I, CHKPTNRSF, CHKPTNFILE, 
+      include 'CHKPOINT'        ! CHKPTSTEP, IFCHKPTRST, CHKPTSET_O, CHKPTSET_I, CHKPTNRSF, CHKPTNFILE,
 
 !     local variables
       integer len, k, i, ierr
@@ -159,7 +152,7 @@ c     this is done only once
      $           ' CHKPTSTEP and NSTEPS not optimal'
          endif
 
-!     set negetive value of chkptset_i to mark that restart was not 
+!     set negetive value of chkptset_i to mark that restart was not
 !     initialised yet
          CHKPTSET_I = -1
 
@@ -192,7 +185,7 @@ c     create chkptrstf name (SESSION.restart)
          call chcopy(chkptrstf,fname,k)
 
 c     create names acording to mfo_open_files
-         if (IFCHKPTRST) then 
+         if (IFCHKPTRST) then
 
 !     create names of restart files
 !     get set number from the file SESSION.restart
@@ -298,7 +291,7 @@ c                     if (NIO.eq.0) write(6,*) CHKPTFNAME(i,1)
 
          endif                  ! IFCHKPTRST
 
-!     set initial file set number; it is different from chkptset_i 
+!     set initial file set number; it is different from chkptset_i
 !     because nek5000 always starts from 1
          CHKPTSET_O = 1
 
@@ -309,13 +302,10 @@ c                     if (NIO.eq.0) write(6,*) CHKPTFNAME(i,1)
 c***********************************************************************
 !     write and read from disc
       subroutine checkpoint_IO()
-      implicit none
 
-      include 'SIZE_DEF'
+
       include 'SIZE'            ! NID, NPERT
-      include 'TSTEP_DEF'
       include 'TSTEP'           ! ISTEP
-      include 'INPUT_DEF'
       include 'INPUT'           ! IFREGUO
       include 'CHKPOINT'        ! CHKPTSTEP, IFCHKPTRST, CHKPTSET_O, CHKPTSET_I, CHKPTNRSF, CHKPTNFILE
 
@@ -368,7 +358,7 @@ c     put parameters back
       end
 c***********************************************************************
 c     VERSION FOR PERTURBATION MODE
-c     following two subroutines are modiffications of 
+c     following two subroutines are modiffications of
 c     full_restart_save
 c     restart_save
 c     from prepost.f.
@@ -378,11 +368,9 @@ c     files rs8 include perturbation and the basefield is saved in rb8.
 c     The more general case (npert/=1 and IFBASE/=F) requeres increse
 c     of file numbers to be written and e.g. hanges in restart_nfld.
       subroutine checkpoint_save_pert(iosave)
-      implicit none
 
-      include 'SIZE_DEF'
+
       include 'SIZE'            ! NPERT, NID
-      include 'INPUT_DEF'
       include 'INPUT'           ! IFPERT, IFBASE
 
 !     rgument list
@@ -417,17 +405,12 @@ c       .save_size = 8 ==> dbl. precision output
 c
 c       .nfldi is the number of rs files to save before overwriting
       subroutine restart_save_pert(iosave,save_size,nfldi)
-      implicit none
 
-      include 'SIZE_DEF'
+
       include 'SIZE'
-      include 'RESTART_DEF'
       include 'RESTART'
-      include 'TSTEP_DEF'
       include 'TSTEP'
-      include 'INPUT_DEF'
       include 'INPUT'
-      include 'SOLN_DEF'
       include 'SOLN'
 
 !     argument list
@@ -459,7 +442,7 @@ c       .nfldi is the number of rs files to save before overwriting
       if (iosav.eq.0) return
 
       iotest = 0
-c     if (iosav.eq.iostep) iotest = 1  ! currently spoiled because of 
+c     if (iosav.eq.iostep) iotest = 1  ! currently spoiled because of
 c                                      ! incompatible format of .fld
 c                                      ! and multi-file i/o;  the latter
 c                                      ! is the only form used for restart
@@ -532,7 +515,7 @@ c  8  format(i8,' prefix ',a3,5i5)
       end
 c***********************************************************************
 c     VERSION FOR PERTURBATION MODE
-c     following two subroutines are modiffications of 
+c     following two subroutines are modiffications of
 c     full_restart
 c     restart
 c     mfi
@@ -540,13 +523,10 @@ c     map_pm1_to_pr
 c     from ic.f.
 c***********************************************************************
       subroutine checkpoint_pert()
-      implicit none
 
-      include 'SIZE_DEF'
+
       include 'SIZE'
-      include 'INPUT_DEF'
       include 'INPUT'
-      include 'TSTEP_DEF'
       include 'TSTEP'
       include 'CHKPOINT'        ! CHKPTFNAME,CHKPTNRSF,CHKPTNFILE
 
@@ -582,7 +562,7 @@ c     perturbation from 'rs' files in all steps
 
          param(67)=p67
       endif
-   
+
       return
       end
 c***********************************************************************
@@ -590,7 +570,7 @@ c     this version supports .f (param(67).eq.6.0) format only
 c***********************************************************************
 C
 C     (1) Open restart file(s)
-C     (2) Check previous spatial discretization 
+C     (2) Check previous spatial discretization
 C     (3) Map (K1,N1) => (K2,N2) if necessary
 C
 C     nfiles > 1 has several implications:
@@ -608,15 +588,11 @@ C     for file loop. It can be useful for perturbation mode with not
 C     advected baseflow.
 
       subroutine restart_pert(nfiles,nfilstart)
-      implicit none
 
-      include 'SIZE_DEF'
+
       include 'SIZE'            ! NID
-      include 'TSTEP_DEF'
       include 'TSTEP'           ! TIME
-      include 'INPUT_DEF'
       include 'INPUT'           ! PARAM
-      include 'RESTART_DEF'
       include 'RESTART'
 
 !     argument list
@@ -654,7 +630,7 @@ c use new reader (only binary support)
 c***********************************************************************
 c
 c     (1) Open restart file(s)
-c     (2) Check previous spatial discretization 
+c     (2) Check previous spatial discretization
 c     (3) Map (K1,N1) => (K2,N2) if necessary
 c
 c     nfiles > 1 has several implications:
@@ -665,21 +641,14 @@ c
 c     ii.  For MHD and perturbation cases, 1st file is for U,P,T;
 c          subsequent files are for B-field or perturbation fields
       subroutine mfi_pert(fname,ifile)
-      implicit none
 
-      include 'SIZE_DEF'
+
       include 'SIZE'
-      include 'INPUT_DEF'
       include 'INPUT'
-      include 'TSTEP_DEF'
       include 'TSTEP'
-      include 'RESTART_DEF'
       include 'RESTART'
-      include 'PARALLEL_DEF'
       include 'PARALLEL'
-      include 'SOLN_DEF'
       include 'SOLN'
-      include 'GEOM_DEF'
       include 'GEOM'
 
 !     ragiment list
@@ -706,7 +675,7 @@ c-----------------------------------------------------------------------
       tiostart=dnekclock()
 
       call mfi_prepare(fname)       ! determine reader nodes +
-                                    ! read hdr + element mapping 
+                                    ! read hdr + element mapping
 
       offs0   = iHeadersize + 4 + isize*nelgr
       nxyzr8  = nxr*nyr*nzr
@@ -837,17 +806,12 @@ c     Adam Peplinski;  axis_interp_ic not modified
       end
 c***********************************************************************
       subroutine map_pm1_to_pr_pert(pm1,ifile)
-      implicit none
 
-      include 'SIZE_DEF'
+
       include 'SIZE'
-      include 'INPUT_DEF'
       include 'INPUT'
-      include 'TSTEP_DEF'
       include 'TSTEP'
-      include 'RESTART_DEF'
       include 'RESTART'
-      include 'SOLN_DEF'
       include 'SOLN'
 
 !     argument list
@@ -894,7 +858,7 @@ c***********************************************************************
             endif
          enddo
       endif
-   
+
       return
       end
 c***********************************************************************

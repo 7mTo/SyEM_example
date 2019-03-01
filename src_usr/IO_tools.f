@@ -1,12 +1,12 @@
 !=======================================================================
 !     Adam Peplinski; 2015.10.25
 !     Set of subroutines reated to IO
-!     
+!
 !=======================================================================
 !***********************************************************************
 !     get free unit number
       subroutine IO_freeid(iunit, ierr)
-      implicit none
+
 
 !     argument list
       integer iunit
@@ -31,16 +31,12 @@
       end
 !***********************************************************************
 c     To create file name; based on mfo_open_files from
-      subroutine IO_mfo_fname(prefix,fname,bname,k) 
-      implicit none
+      subroutine IO_mfo_fname(prefix,fname,bname,k)
 
-      include 'SIZE_DEF'
+
       include 'SIZE'
-      include 'INPUT_DEF'
       include 'INPUT'
-      include 'PARALLEL_DEF'
       include 'PARALLEL'
-      include 'RESTART_DEF'
       include 'RESTART'
 
 !     argument list
@@ -75,7 +71,7 @@ c     To create file name; based on mfo_open_files from
       rfileo = nfileo
 #endif
       ndigit = log10(rfileo) + 1
-     
+
       k = 1
       if (ifdiro) then          !  Add directory
          call chcopy(fnam1(1),'A',1)
@@ -94,7 +90,7 @@ c     To create file name; based on mfo_open_files from
       len=ltrunc(bname,132)   !  Add SESSION
       call chcopy(fnam1(k),bname,len)
       k = k+len
-     
+
       if (ifreguo) then
          len=4
          call chcopy(fnam1(k),'_reg',len)
@@ -113,16 +109,14 @@ c     To create file name; based on mfo_open_files from
       return
       end
 !***********************************************************************
-!     it is a modified version of mbyte_open from ic.f but without 
-!     equivalence and MPIIO part; I need for some tools 
+!     it is a modified version of mbyte_open from ic.f but without
+!     equivalence and MPIIO part; I need for some tools
 !     because processor independent part is saved only by master.
 !***********************************************************************
       subroutine IO_mbyte_open_srl(hname,fid,ierr) ! open  blah000.fldnn
-      implicit none
 
-      include 'SIZE_DEF'
+
       include 'SIZE'
-      include 'TSTEP_DEF'
       include 'TSTEP'
 
 !     argumnt list

@@ -1,24 +1,22 @@
 !=======================================================================
 !     Adam Peplinski; 2015.10.20
-!     Set of subroutines to read user and module parameters using 
+!     Set of subroutines to read user and module parameters using
 !     namelists.
-!     
+!
 !=======================================================================
 !***********************************************************************
 !     read parameters from the file
       subroutine uprm_read
-      implicit none
 
-      include 'SIZE_DEF'
+
       include 'SIZE'            ! NID
-      include 'INPUT_DEF'
       include 'INPUT'           ! REAFLE
 
 !     local variables
       integer len, ierr
       integer iunit
 
-      character*132 fname 
+      character*132 fname
 
 !     functions
       integer ltrunc
@@ -52,14 +50,14 @@
 !     stamp logs
       if (NIO.eq.0) write(*,*) 'User parameter list'
       call uprm_out(6)
-      if (NIO.eq.0) write(*,*) 
+      if (NIO.eq.0) write(*,*)
 
       return
       end
 !***********************************************************************
 !     read parameters
       subroutine uprm_in(iunit)
-      implicit none
+
 
 !     argument list
       integer iunit
@@ -87,7 +85,7 @@
 !***********************************************************************
 !     output parameters
       subroutine uprm_out(iunit)
-      implicit none
+
 
 !     argument list
       integer iunit
@@ -111,11 +109,9 @@
 !***********************************************************************
 !     read user parameters
       subroutine user_param_in(fid)
-      implicit none
 
-      include 'SIZE_DEF'
+
       include 'SIZE'            !
-      include 'PARALLEL_DEF' 
       include 'PARALLEL'        ! ISIZE, WDSIZE, LSIZE,CSIZE
       include 'USERPAR'         !
 
@@ -160,9 +156,8 @@
 !***********************************************************************
 !     write user parameters
       subroutine user_param_out(fid)
-      implicit none
 
-      include 'SIZE_DEF'
+
       include 'SIZE'            !
       include 'USERPAR'         !
 

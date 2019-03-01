@@ -1,10 +1,10 @@
 c-----------------------------------------------------------------------
-c     Turbulent pipe flow 
+c     Turbulent pipe flow
 c     Along (positive) z-direction
-c     
-c     Turbulence at inlet is "generated" with divergence-free 
+c
+c     Turbulence at inlet is "generated" with divergence-free
 c     synthetic eddy method (DFSyEMiso)
-c     Poletto, Ruggero: Divergence free development of the synthetic eddy method 
+c     Poletto, Ruggero: Divergence free development of the synthetic eddy method
 c     in order to improve synthetic turbulence for embedded les simulations,
 c     PhD Thesis, The University of Manchester, 2015
 c
@@ -37,17 +37,12 @@ c-----------------------------------------------------------------------
 
       subroutine userchk
       use AVG, only: tstart
-      implicit none
 
-      include 'SIZE_DEF'
+
       include 'SIZE'  ! L[XYZ]1,LELV,NID
-      include 'MASS_DEF'
       include 'MASS' ! BM1
-      include 'TSTEP_DEF'
       include 'TSTEP' ! ISTEP,IOSTEP
-      include 'INPUT_DEF'
       include 'INPUT' ! PARAM
-      include 'SOLN_DEF'      
       include 'SOLN'  ! V[XYZ],V[XYZ]P
       include 'CHKPOINT'
 
@@ -71,7 +66,7 @@ c     This maps divergence from pressure (Pn-2) to velocity mesh (Pn)
       call mappr(divm1,divv,work1,work2)
 c     and averages the divergence on element boundaries
 c     In contrast to outpost(), which does not average
-c       when writing divergence in pressure ouput 
+c       when writing divergence in pressure ouput
 c     -> therefore, slight discrepancy < ~ factor 2
 
       divmax = glmax(divm1, nx1*ny1*nz1*nelv)
@@ -86,7 +81,7 @@ c     endif
       if ((iostep.gt.0.and.istep.gt.0.and.mod(ISTEP,IOSTEP).eq.0).or.
      $ (timeio.gt.0.and.time.ge.(ntdump + 1)*timeio)) then
          if (NID.eq.0) write(6,*) ISTEP,IOSTEP,TIME,' compute lambda2'
-c     Compute lambda_2 
+c     Compute lambda_2
          call lambda2(t(1,1,1,1,1))
       endif
 
@@ -95,12 +90,12 @@ c     DFSEM
       call synthetic_eddies
       rtime = rtime + (dnekclock()-tic)
 
-      if(istep.eq.nsteps.and.nid.eq.0) 
+      if(istep.eq.nsteps.and.nid.eq.0)
      $  write(6,'(A,e15.4)') 'synth. eddy method time = ', rtime
 
 c     Statistics
 
-c     Start recording at least after initial synthetic eddies 
+c     Start recording at least after initial synthetic eddies
 c     have left pipe
 c     (L/u_bulk)/dt plus tolerance
 
@@ -112,8 +107,8 @@ c     Restart routines
       call checkpoint
 
 c     This call is already executed in setics()/ic.f
-c     However, it has the wrong time time-value (=0.0) 
-c     when using our restarting, which initializes 'time' 
+c     However, it has the wrong time time-value (=0.0)
+c     when using our restarting, which initializes 'time'
       if (istep.eq.0.and.timeio.ne.0.0)  then
         ntdump = int( (time+1e-14)/timeio )
       endif
@@ -126,15 +121,11 @@ c-----------------------------------------------------------------------
 c     NOTE ::: This subroutine MAY NOT be called by every process
       use SEM, only: u_sem, v_sem, w_sem, bulk_vel_diff
 
-      implicit none
 
-      include 'SIZE_DEF'
+
       include 'SIZE'  ! L[XYZ]1,LELV
-      include 'PARALLEL_DEF'
       include 'PARALLEL'  ! GLLEL
-      include 'INPUT_DEF'
       include 'INPUT'  ! IF3D
-      include 'NEKUSE_DEF'
       include 'NEKUSE'! U[XYZ],PA,TEMP,CBU
 
       integer, intent(in) :: ix,iy,iz,iside,ieg
@@ -143,8 +134,8 @@ c     NOTE ::: This subroutine MAY NOT be called by every process
 c     Prescribe DFSEM inflow
 
       iel=gllel(ieg)
-      ux= u_sem(ix,iy,iz,iel) 
-      uy= v_sem(ix,iy,iz,iel) 
+      ux= u_sem(ix,iy,iz,iel)
+      uy= v_sem(ix,iy,iz,iel)
       uz= w_sem(ix,iy,iz,iel) + bulk_vel_diff
 
       temp = 0.0d0
@@ -155,13 +146,11 @@ c-----------------------------------------------------------------------
 
       subroutine useric (ix,iy,iz,ieg)
       use SEM, only: nElinlet, umean_inlet
-      implicit none
 
-      include 'SIZE_DEF'
+
       include 'SIZE'  ! L[XYZ]1,LELV
-      include 'NEKUSE_DEF'
       include 'NEKUSE'! U[XYZ], [XYZ]
-      include 'USERPAR' 
+      include 'USERPAR'
 
       integer, intent(in) :: ix,iy,iz,ieg
 
@@ -170,7 +159,7 @@ c-----------------------------------------------------------------------
 
 c     Prescribe mean inflow profile used by DFSEM as IC
 
-      ex = mod(ieg-1,nElInlet)+1 
+      ex = mod(ieg-1,nElInlet)+1
 
       vel = umean_inlet(ix,iy,ex)
 
@@ -203,16 +192,13 @@ c-----------------------------------------------------------------------
       subroutine usrdat
       use SEM, only: zbmin, zbmax, ybmax,
      &   sigma_max, z_inlet
-      implicit none
+
       real, external :: glmin, glmax ! defined in math.f
 
-      include 'SIZE_DEF'
       include 'SIZE' ! nelv
-      include 'INPUT_DEF' 
       include 'INPUT' ! [xyz]c
-      include 'TSTEP_DEF'
       include 'TSTEP' ! ISTEP,IOSTEP
-      include 'USERPAR' 
+      include 'USERPAR'
       include 'CHKPOINT'
 
       real ymax
@@ -221,19 +207,19 @@ c     Read user module parameters
       call uprm_read
 
       if (.not.CHKPTSTEP.eq.IOSTEP) then
-         if (NID.eq.0) write(6,*) 
+         if (NID.eq.0) write(6,*)
      $ '!!!Warning!!! It is recommended to run with IOSTEP ==CHKPTSTEP'
 c     To obtain time-equidistnat POD snapshots across restarts
       endif
 
 c     Initialize DFSEM variables
-      
+
 c     The bounding "box" (actually a cylinder for the pipe)
 c     is just large enough to contain the compact support of all
-c     eddies. 
+c     eddies.
 
 c     ybmin = glmin(yc,8*nelv)
-      ybmax = glmax(yc,8*nelv) 
+      ybmax = glmax(yc,8*nelv)
 c     xbmin = glmin(xc,8*nelv)
 c     xbmax = glmax(xc,8*nelv)
       z_inlet  = glmin(zc,8*nelv)
@@ -251,16 +237,12 @@ c     xbmax = glmax(xc,8*nelv)
 c-----------------------------------------------------------------------
 
       subroutine usrdat2
-      implicit none
-      include 'SIZE_DEF'
+
       include 'SIZE' ! nelv
-      include 'GEOM_DEF'
-      include 'GEOM' 
-      include 'NEKUSE_DEF'
+      include 'GEOM'
       include 'NEKUSE' ! XM1
-      include 'INPUT_DEF'
-      include 'INPUT' 
-      include 'USERPAR' 
+      include 'INPUT'
+      include 'USERPAR'
 
       integer i
       real angle, circumf
@@ -298,14 +280,14 @@ c
       param(59) = 1. ! 1 = deformed mesh
 
       endif
-        
+
       return
       end
 
 c-----------------------------------------------------------------------
 
       subroutine usrdat3
-      implicit none
+
       return
       end
 

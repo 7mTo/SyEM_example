@@ -1,17 +1,17 @@
 c Divergence free Synthetic eddy method module for NEK5000
 c
-c User needs to provide 
+c User needs to provide
 c  -dimensions of the eddy box (in usrdat)
-c  -A few input parameters 
+c  -A few input parameters
 c     (e.g. # of eddies, max(sigma), ..
-c  -sem_input.txt 
-c     containing 
+c  -sem_input.txt
+c     containing
 c       -1d-pos
 c       -k(pos)
 c       -epsilon(pos)
 c       -umean(pos)
 c
-c   The latter two are are e.g. 
+c   The latter two are are e.g.
 c   generated with a  Matlab script from DNS data
 c
 c Lorenz Hufnagel hufnagel@kth.se
@@ -20,30 +20,30 @@ c Based on the code by Oana Marin
 c
 
       module SEM
-         implicit none
+
          save
 
-         integer             :: nEddy ! number of eddies 
+         integer             :: nEddy ! number of eddies
 
          integer             :: nElInlet ! number of elements at inlet
          ! Warning: This optimization assumes that actually the first
          ! nElInlet mesh-elements are the inlet elements.
-         ! In the pipe-case the mesh is created accordingly, 
+         ! In the pipe-case the mesh is created accordingly,
          ! and nElInlet == nelperface
 
-         real                :: sigma_max 
+         real                :: sigma_max
          ! upper eddy size bound (due to k&eps)
-         real                :: yplus_cutoff   
+         real                :: yplus_cutoff
          ! yplus above which no eddies are generated, to maintain
-         ! divergence freedom. 
+         ! divergence freedom.
          ! Typically this should be 10 delta+ from the wall.
          real                :: u0 ! bulk velocity
 
 
          ! Deviation of bulk velocity of generated signal
          real                :: bulk_vel_diff ! bulk velocity
-         real                :: inlet_area 
-         
+         real                :: inlet_area
+
          character*80 infile
          parameter (infile='sem_input.txt')
 
@@ -51,18 +51,18 @@ c
          parameter (restart_file='sem_restart.txt')
 
          ! extent, Volume of the virtual SEM domain
-         real                :: ybmin,ybmax,zbmin,zbmax,xbmin,xbmax 
+         real                :: ybmin,ybmax,zbmin,zbmax,xbmin,xbmax
          real                :: Vb
          real                :: z_inlet ! z value of inlet plane
 
          real , allocatable  :: umean_inlet(:,:,:)
          real , allocatable  :: sigma_inlet(:,:,:)
          ! eddy size at inlet face
-         real , allocatable  :: intensity_inlet(:,:,:) 
+         real , allocatable  :: intensity_inlet(:,:,:)
          ! cholesky of isotropic diag. reystress tensor
          ! at inlet face
 
-         ! Actual prescribed velocity field 
+         ! Actual prescribed velocity field
          ! (relevant elements, are extracted via 'v  ' bc)
          real , allocatable  :: u_sem(:,:,:,:)
          real , allocatable  :: v_sem(:,:,:,:)
@@ -71,7 +71,7 @@ c
          ! Individual eddy energies
          real, allocatable   :: ex(:),ey(:),ez(:)
          integer, allocatable :: eps(:,:)
-         
+
          integer             :: nInputdata
          real   ,allocatable :: pos(:),umean(:),tke(:),dissip(:)
       end module SEM
@@ -81,13 +81,10 @@ c-----------------------------------------------------------------------
       subroutine SEMinit()
       use SEM
       use AVG, only: nElperFace
-      implicit none
 
-      include 'SIZE_DEF'
+
       include 'SIZE'  ! L[XYZ]1,LELV
-      include 'GEOM_DEF'
       include 'GEOM' ! XM1
-      include 'PARALLEL_DEF'
       include 'PARALLEL'
 
       real vel_interp, tke_interp, dissip_interp, sigmal, radius
@@ -99,7 +96,7 @@ c-----------------------------------------------------------------------
       logical semstop
 
       if (nElInlet.ne.nElperFace) then
-        if (nid.eq.0) write(*,*) 
+        if (nid.eq.0) write(*,*)
      $'ABORT For pipe flow, you probably want nElperFace==nElinlet'
         call exitti
       endif
@@ -117,10 +114,10 @@ c
       end if
 c
 c     Read infile
-      
+
       fid = 35
       open(unit=fid,file=infile,form='formatted')
-      
+
       read(fid,*)      ! skip header
       read(fid,*) nlines
 
@@ -132,7 +129,7 @@ c     Read infile
       allocate(dissip(nlines))
 
       do i=1, nlines
-        read(fid,*) pos(i), umean(i), 
+        read(fid,*) pos(i), umean(i),
      &              tke(i), dissip(i)
       enddo
       close(fid)
@@ -156,7 +153,7 @@ c     Read infile
 
       do e=1,nelv
         eg = lglel(e)
-        emod = mod(eg-1,nElInlet)+1 
+        emod = mod(eg-1,nElInlet)+1
         ! Calculate eddy size and intensity at inlet only once
 
         do j=1,ly1
@@ -174,10 +171,10 @@ c     Read infile
         ! to Prandtl's mixing length
         ! kappa is .41, ybmax is pipe-radius here
 
-        sigmal = min(sigmal,ybmax - radius) 
+        sigmal = min(sigmal,ybmax - radius)
         ! make eddies no larger than pipe
 
-        sigmal = max(sigmal, .01*ybmax)  
+        sigmal = max(sigmal, .01*ybmax)
         ! avoid creating too small eddies (0.01 is chosen "arbitrarly")
 
         sigma_inlet(i,j,emod)     = sigmal
@@ -203,13 +200,11 @@ c-----------------------------------------------------------------------
 
 !     read parameters SEM
       subroutine SEM_param_in(fid)
-        use SEM, only: nEddy, yplus_cutoff, nElInlet, 
+        use SEM, only: nEddy, yplus_cutoff, nElInlet,
      $                 sigma_max, u0
-      implicit none
 
-      include 'SIZE_DEF'
+
       include 'SIZE'            !
-      include 'PARALLEL_DEF' 
       include 'PARALLEL'        ! ISIZE, WDSIZE, LSIZE,CSIZE
 
 !     argument list
@@ -247,9 +242,8 @@ c-----------------------------------------------------------------------
 !     write parameters checkpoint
       subroutine SEM_param_out(fid)
         use SEM, only: nEddy, nElInlet, sigma_max, yplus_cutoff, u0
-      implicit none
 
-      include 'SIZE_DEF'
+
       include 'SIZE'            !
 
 !     argument list
@@ -275,16 +269,12 @@ C SEM Main routine
 C=======================================================================
       subroutine synthetic_eddies
         use SEM
-      implicit none
-      include 'SIZE_DEF'
+
       include 'SIZE'
-      include 'TSTEP_DEF'
       include 'TSTEP' ! ISTEP,IOSTEP
-      include 'GEOM_DEF'
       include 'GEOM' ! XM1
-      include 'PARALLEL_DEF'
       include 'PARALLEL' ! XM1
-    
+
       real    ff,fx,fy,fz,
      &           rr, rrx,rry,rrz
       real, parameter :: sqrt32 = sqrt(3./2)
@@ -294,13 +284,13 @@ C=======================================================================
 
       real  work
       real wk_e(neddy*3)
-      integer clock, e,eg, 
+      integer clock, e,eg,
      &      i,j,ne,nv,iseed
       !     functions
       real dnekclock, sqrtn
-  
+
 c --- generate initial eddy distribution ----
-    
+
       if (istep.eq.0) then
         iseed = int(dnekclock())
         call  ZBQLINI(iseed)
@@ -308,8 +298,8 @@ c --- generate initial eddy distribution ----
 c     Generate eddies with locations ex,ey,ez
         do i=1,neddy
           call gen_eddy(i)
-        enddo   
-      else 
+        enddo
+      else
         call advect_recycle_eddies(neddy)
       endif
 
@@ -330,7 +320,7 @@ c ---- compute velocity contribution of eddies ------
       do e=1,nelv
         eg = lglel(e)
 c         if (abs(zm1(1,1,1,e)-z_inlet).lt.1e-13) then
-        if (eg.le.nElInlet) then 
+        if (eg.le.nElInlet) then
 
         do j=1,ly1
         do i=1,lx1
@@ -364,14 +354,14 @@ c         if (abs(zm1(1,1,1,e)-z_inlet).lt.1e-13) then
               v_sem(i,j,1,e) = v_sem(i,j,1,e) + fy*ff
               w_sem(i,j,1,e) = w_sem(i,j,1,e) + fz*ff
             endif
-           enddo         
+           enddo
 
 
            bulk_vel_diff = bulk_vel_diff + area(i,j,5,e)*w_sem(i,j,1,e)
 
         enddo
         enddo
-      endif 
+      endif
       enddo
 
 
@@ -384,31 +374,28 @@ c-----------------------------------------------------------------------
 c     Generate eddy location randomly in bounding box (only on rank=0)
       subroutine gen_eddy(n)
       use SEM, only: ex,ey,ez,eps, zbmin, zbmax, yplus_cutoff
-      implicit none
+
 
       real, parameter :: twoPi = 6.283185307179586476925286766
       double precision, external :: rnd_loc
-      include 'SIZE_DEF'
       include 'SIZE'
-      include 'TSTEP_DEF'
       include 'TSTEP' ! ISTEP,IOSTEP
       include 'USERPAR'
-      include 'PARALLEL_DEF'
       include 'PARALLEL'
 
       integer, intent(in) :: n
       real rnd, rho, theta
       integer j
 
-c     Generate uniformly distributed random locations 
+c     Generate uniformly distributed random locations
 c     in polar coordinates (!) only on rank-0
 
       if (nid.eq.0) then
 
-      rho = yplus_cutoff*sqrt(rnd_loc(0.0,1.0))  
-      theta = rnd_loc(0.,twoPI) 
+      rho = yplus_cutoff*sqrt(rnd_loc(0.0,1.0))
+      theta = rnd_loc(0.,twoPI)
 
-      ex(n) = rho * cos(theta) 
+      ex(n) = rho * cos(theta)
       if (abs(bent_phi).gt.1e-10) then
         ex(n) = ex(n) + bent_radius
       endif
@@ -418,7 +405,7 @@ c     in polar coordinates (!) only on rank-0
           ez(n) = rnd_loc(zbmin,zbmax)
       else
           ez(n) = zbmin
-      endif       
+      endif
 
       do j=1,3
         rnd = rnd_loc(0.0,1.0)
@@ -440,7 +427,7 @@ c     Broadcast eddy to each processor
       end subroutine gen_eddy
 c-----------------------------------------------------------------------
       real function rnd_loc (lower,upper)
-      implicit none
+
 
       real, intent(in) :: lower, upper
       real rnd
@@ -455,20 +442,18 @@ c-----------------------------------------------------------------------
 c     Convect eddies and recycle by regenerating the location
       subroutine advect_recycle_eddies(n)
       use SEM, only: zbmax,u0, neddy, ex, ey, ez, eps
-      implicit none
-      include 'SIZE_DEF' ! DT
+
       include 'SIZE' ! DT
-      include 'TSTEP_DEF' ! DT
       include 'TSTEP'
 
       integer, intent(in) :: n
-     
+
       integer i
 
       do i=1,n
         ez(i) = ez(i) + u0*DT
 
-                            
+
 c     ---- recycle exiting eddies ----
         if (ez(i).gt.(zbmax))then
           call gen_eddy(i)
@@ -486,7 +471,7 @@ c     point of interest
 
       subroutine SEMinputData(pos_in, vel_out, tke_out, eps_out)
       use SEM, only: nInputdata, pos, umean, tke, dissip
-      implicit none
+
 
       real, intent(in) :: pos_in
       real, intent(out) :: vel_out, tke_out, eps_out
@@ -519,20 +504,17 @@ c     point of interest
 
       subroutine SEMrestart
       use SEM, only: restart_file, ex, ey, ez, eps, neddy
-      implicit none
 
-      include 'SIZE_DEF'
+
       include 'SIZE'
-      include 'PARALLEL_DEF'
       include 'PARALLEL'
-      include 'TSTEP_DEF'
       include 'TSTEP' ! ISTEP,IOSTEP
       include 'CHKPOINT'
 
       integer j, neddy_tmp
 
       if (istep.eq.0) then
-        if (IFCHKPTRST) then 
+        if (IFCHKPTRST) then
 
       ! read in eddy data from files:
       ! ex,ey,ez, eps, maybe iseed
@@ -550,12 +532,12 @@ c     point of interest
            call exit
          endif
 
-         read(97,*) (ex(j),j=1,neddy)  
-         read(97,*) (ey(j),j=1,neddy)  
-         read(97,*) (ez(j),j=1,neddy)  
-         read(97,*) (eps(1,j),j=1,neddy)  
-         read(97,*) (eps(2,j),j=1,neddy)  
-         read(97,*) (eps(3,j),j=1,neddy)  
+         read(97,*) (ex(j),j=1,neddy)
+         read(97,*) (ey(j),j=1,neddy)
+         read(97,*) (ez(j),j=1,neddy)
+         read(97,*) (eps(1,j),j=1,neddy)
+         read(97,*) (eps(2,j),j=1,neddy)
+         read(97,*) (eps(3,j),j=1,neddy)
 
          close(97)
        endif
@@ -577,17 +559,17 @@ c     point of interest
       ! Data is gathered already
 
       ! maybe also store the seed
-       
+
        if (nid.eq.0) then
          open(unit=97,form='formatted',file=restart_file)
           write(97,*) TIME
           write(97,*) neddy
-          write(97,*) (ex(j),j=1,neddy)  
-          write(97,*) (ey(j),j=1,neddy)  
-          write(97,*) (ez(j),j=1,neddy)  
-          write(97,*) (eps(1,j),j=1,neddy)  
-          write(97,*) (eps(2,j),j=1,neddy)  
-          write(97,*) (eps(3,j),j=1,neddy)  
+          write(97,*) (ex(j),j=1,neddy)
+          write(97,*) (ey(j),j=1,neddy)
+          write(97,*) (ez(j),j=1,neddy)
+          write(97,*) (eps(1,j),j=1,neddy)
+          write(97,*) (eps(2,j),j=1,neddy)
+          write(97,*) (eps(3,j),j=1,neddy)
 
           close(97)
         endif
@@ -649,9 +631,9 @@ c-------------------------------------------------------------------
 *   ARGUMENTS
 *   =========
 *   SEED    (integer, input). User-input number which generates
-*       elements of the array ZBQLIX, which is subsequently used 
+*       elements of the array ZBQLIX, which is subsequently used
 *       in the random number generation algorithm. If SEED=0,
-*       the array is seeded using the system clock if the 
+*       the array is seeded using the system clock if the
 *       FORTRAN implementation allows it.
 ******************************************************************
 *   PARAMETERS
@@ -661,7 +643,7 @@ c-------------------------------------------------------------------
 *       Default is 80 to keep out of the way of any existing
 *       open files (although the program keeps searching till
 *       it finds an available handle). If this causes problems,
-*               (which will only happen if handles 80 through 99 are 
+*               (which will only happen if handles 80 through 99 are
 *               already in use), decrease the default value.
 ******************************************************************
       INTEGER LFLNO
@@ -727,7 +709,7 @@ c-------------------------------------------------------------------
       ZBQLIX(1) = TMPVAR1
       DO 100 I = 2,43
        TMPVAR1 = ZBQLIX(I-1)*3.0269D4
-       TMPVAR1 = DMOD(TMPVAR1,B)       
+       TMPVAR1 = DMOD(TMPVAR1,B)
        ZBQLIX(I) = TMPVAR1
  100  CONTINUE
 
@@ -743,19 +725,19 @@ c-------------------------------------------------------------------
       END
 ******************************************************************
       FUNCTION ZBQLU01(DUMMY)
-         implicit none
+
 *
 *       Returns a uniform random number between 0 & 1, using
 *       a Marsaglia-Zaman type subtract-with-borrow generator.
-*       Uses double precision, rather than integer, arithmetic 
+*       Uses double precision, rather than integer, arithmetic
 *       throughout because MZ's integer constants overflow
 *       32-bit integer storage (which goes from -2^31 to 2^31).
-*       Ideally, we would explicitly truncate all integer 
+*       Ideally, we would explicitly truncate all integer
 *       quantities at each stage to ensure that the double
 *       precision representations do not accumulate approximation
 *       error; however, on some machines the use of DNINT to
 *       accomplish this is *seriously* slow (run-time increased
-*       by a factor of about 3). This double precision version 
+*       by a factor of about 3). This double precision version
 *       has been tested against an integer implementation that
 *       uses long integers (non-standard and, again, slow) -
 *       the output was identical up to the 16th decimal place
@@ -795,11 +777,11 @@ c-------------------------------------------------------------------
        ID43 = 43
       ENDIF
 *
-*     The integer arithmetic there can yield X=0, which can cause 
+*     The integer arithmetic there can yield X=0, which can cause
 *     problems in subsequent routines (e.g. ZBQLEXP). The problem
-*     is simply that X is discrete whereas U is supposed to 
+*     is simply that X is discrete whereas U is supposed to
 *     be continuous - hence if X is 0, go back and generate another
-*     X and return X/B^2 (etc.), which will be uniform on (0,1/B). 
+*     X and return X/B^2 (etc.), which will be uniform on (0,1/B).
 *
       IF (X.LT.BINV) THEN
        B2 = B2*B

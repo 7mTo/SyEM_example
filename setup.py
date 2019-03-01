@@ -83,7 +83,7 @@ except AssertionError:
 ## 	assert os.path.isfile('makenek')
 ## except AssertionError:
 ## 	shutil.copy('Nek5000/nek/make', 'make')
-if os.path.isfile('make'):
+if os.path.isfile('makenek'):
 	ofile = open('makenek',     'r')
 	nfile = open('makenek.tmp', 'w')
 	lines = ofile.readlines()
@@ -151,7 +151,7 @@ if os.path.isfile('pipe.rea'):
 
 # generate map
 try:
-	assert os.path.isfile('pipe.map')
+	assert os.path.isfile('pipe.ma2')
 except AssertionError:
 	tfile = open('tmp.in', 'w')
 	tfile.write('pipe\n')

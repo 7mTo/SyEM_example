@@ -5,12 +5,12 @@ C -------------- quickly copied by Lorenz, added extract Z-Slice ------- C
 C ---------------------------------------------------------------------- C
 C%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%C
       module AVG
-         implicit none
+
          save
 
          integer             :: nslices ! number of slices
          real                :: tstart
-         real                :: delta_time_avg 
+         real                :: delta_time_avg
          ! average every time interval
          integer             :: nElperFace ! number of elements per face
          real , allocatable  :: zslices(:)
@@ -20,17 +20,12 @@ C=======================================================================
 
       subroutine avg_stat_all
         use AVG
-        implicit none
 
-      include 'SIZE_DEF'
+
       include 'SIZE'
-      include 'TSTEP_DEF'
       include 'TSTEP'
-      include 'SOLN_DEF'
       include 'SOLN'
-      include 'GEOM_DEF'
       include 'GEOM'
-      include 'INPUT_DEF'
       include 'INPUT'
       include 'CHKPOINT'
 
@@ -106,7 +101,7 @@ C%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%C
 
       integer indts, nrec
       save    indts, nrec
-      save    times 
+      save    times
       save    domain_x, domain_y, domain_z
 
       character*80 pippo
@@ -117,7 +112,7 @@ C%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%C
 C%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%C
 
       ntot    = nx1*ny1*nz1*nelv
-      
+
       if (icalld.eq.0) then
         icalld = icalld + 1
 
@@ -128,11 +123,11 @@ C%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%C
         xlmax = glmax(xm1,ntot)
         domain_x = xlmax - xlmin
 
-        ylmin = glmin(ym1,ntot)          
+        ylmin = glmin(ym1,ntot)
         ylmax = glmax(ym1,ntot)
         domain_y = ylmax - ylmin
 
-        zlmin = glmin(zm1,ntot)          
+        zlmin = glmin(zm1,ntot)
         zlmax = glmax(zm1,ntot)
         domain_z = zlmax - zlmin
 
@@ -142,10 +137,10 @@ C%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%C
          times = time
 
          if(nid.eq.0) then
-         
+
          indts = 0 ! output file counter
 
-         ! Do a stupid search whether there are pre-existing files 
+         ! Do a stupid search whether there are pre-existing files
          ! (of first slice) e.g. after restarting
          if (nslices.gt.0.and.IFCHKPTRST) then
            file_exists = .true.
@@ -156,7 +151,7 @@ C%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%C
            inputname1 = 'statistics/recordings/stat_z_'//
      $    adjustl(trim(pippo))
 
-           inquire(file=inputname1,exist=file_exists); 
+           inquire(file=inputname1,exist=file_exists);
 
            indts = indts + 1
            end do
@@ -178,11 +173,11 @@ C%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%C
       if  (iastep.eq.0) iastep=param(15)   ! same as iostep
       if  (iastep.eq.0) iastep=10
 
-C%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%C  
-     
+C%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%C
+
       atime = atime + dtime
 
-c      call mappr(pm1,pr,wk1,wk2) ! map pressure to mesh 1 (vel. mesh) 
+c      call mappr(pm1,pr,wk1,wk2) ! map pressure to mesh 1 (vel. mesh)
       call copy(p0,pr,ntot)
 
       pmean = -surf_mean(pr,1,'W  ',ierr)
@@ -196,14 +191,14 @@ c      call mappr(pm1,pr,wk1,wk2) ! map pressure to mesh 1 (vel. mesh)
         nrec  = nrec + 1
         beta  = dtime/atime
         alpha = 1.-beta
-C%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%C 
+C%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%C
 
         call avg1(stat(1,1),vx,alpha,beta,ntot,'velx',ifverbose)     ! <u>
         call avg1(stat(1,2),vy,alpha,beta,ntot,'vely',ifverbose)     ! <v>
         call avg1(stat(1,3),vz,alpha,beta,ntot,'velz',ifverbose)     ! <w>
         call avg1(stat(1,4),p0,alpha,beta,ntot,'pres',ifverbose)     ! <p>
 
-        call avg2(stat(1,5),vx,alpha,beta,ntot,'urms',ifverbose)     ! <uu> (u: instantaneous) 
+        call avg2(stat(1,5),vx,alpha,beta,ntot,'urms',ifverbose)     ! <uu> (u: instantaneous)
         call avg2(stat(1,6),vy,alpha,beta,ntot,'vrms',ifverbose)     ! <vv> (v: instantaneous)
         call avg2(stat(1,7),vz,alpha,beta,ntot,'wrms',ifverbose)     ! <ww> (w: instantaneous)
         call avg2(stat(1,8),p0,alpha,beta,ntot,'prms',ifverbose)     ! <pp> (p: instantaneous)
@@ -213,51 +208,51 @@ C%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         call avg3(stat(1,11),vz,vx,alpha,beta,ntot,'wurm',ifverbose) ! <uw> (u, w: instantaneous)
 
         call avg4(stat(1,12),vx,p0,alpha,beta,ntot,'pu')   ! <pu> (p, u: instantaneous)
-        call avg4(stat(1,13),vy,p0,alpha,beta,ntot,'pv')   ! <pv> (p, v: instantaneous)           
+        call avg4(stat(1,13),vy,p0,alpha,beta,ntot,'pv')   ! <pv> (p, v: instantaneous)
         call avg4(stat(1,14),vz,p0,alpha,beta,ntot,'pw')   ! <pw> (p, w: instantaneous)
 
-        call avg5(stat(1,15),p0,duidxj,alpha,beta,ntot,'pux') ! <pdudx> (p, dudx: instantaneous) 
-        call avg5(stat(1,16),p0,duidxj,alpha,beta,ntot,'puy') ! <pdudy> (p, dudy: instantaneous) 
+        call avg5(stat(1,15),p0,duidxj,alpha,beta,ntot,'pux') ! <pdudx> (p, dudx: instantaneous)
+        call avg5(stat(1,16),p0,duidxj,alpha,beta,ntot,'puy') ! <pdudy> (p, dudy: instantaneous)
         call avg5(stat(1,17),p0,duidxj,alpha,beta,ntot,'puz') ! <pdudz> (p, dudz: instantaneous)
 
-        call avg5(stat(1,18),p0,duidxj,alpha,beta,ntot,'pvx') ! <pdvdx> (p, dvdx: instantaneous) 
+        call avg5(stat(1,18),p0,duidxj,alpha,beta,ntot,'pvx') ! <pdvdx> (p, dvdx: instantaneous)
         call avg5(stat(1,19),p0,duidxj,alpha,beta,ntot,'pvy') ! <pdvdy> (p, dvdy: instantaneous)
-        call avg5(stat(1,20),p0,duidxj,alpha,beta,ntot,'pvz') ! <pdvdz> (p, dvdz: instantaneous)   
+        call avg5(stat(1,20),p0,duidxj,alpha,beta,ntot,'pvz') ! <pdvdz> (p, dvdz: instantaneous)
 
-        call avg5(stat(1,21),p0,duidxj,alpha,beta,ntot,'pwx') ! <pdwdx> (p, dwdx: instantaneous) 
+        call avg5(stat(1,21),p0,duidxj,alpha,beta,ntot,'pwx') ! <pdwdx> (p, dwdx: instantaneous)
         call avg5(stat(1,22),p0,duidxj,alpha,beta,ntot,'pwy') ! <pdwdy> (p, dwdy: instantaneous)
         call avg5(stat(1,23),p0,duidxj,alpha,beta,ntot,'pwz') ! <pdwdz> (p, dwdz: instantaneous)
 
-        call avg6(stat(1,24),vx,vx,vx,alpha,beta,ntot,'u3')    ! <uuu> (u: instantaneous) 
-        call avg6(stat(1,25),vy,vy,vy,alpha,beta,ntot,'v3')    ! <vvv> (v: instantaneous) 
-        call avg6(stat(1,26),vz,vz,vz,alpha,beta,ntot,'w3')    ! <www> (w: instantaneous) 
-        call avg6(stat(1,27),p0,p0,p0,alpha,beta,ntot,'p3')    ! <ppp> (p: instantaneous) 
+        call avg6(stat(1,24),vx,vx,vx,alpha,beta,ntot,'u3')    ! <uuu> (u: instantaneous)
+        call avg6(stat(1,25),vy,vy,vy,alpha,beta,ntot,'v3')    ! <vvv> (v: instantaneous)
+        call avg6(stat(1,26),vz,vz,vz,alpha,beta,ntot,'w3')    ! <www> (w: instantaneous)
+        call avg6(stat(1,27),p0,p0,p0,alpha,beta,ntot,'p3')    ! <ppp> (p: instantaneous)
 
-        call avg6(stat(1,28),vx,vx,vy,alpha,beta,ntot,'u2v')   ! <uuv> (u, v: instantaneous) 
-        call avg6(stat(1,29),vx,vx,vz,alpha,beta,ntot,'u2w')   ! <uuw> (u, w: instantaneous)  
-        call avg6(stat(1,30),vy,vy,vx,alpha,beta,ntot,'v2v')   ! <vvu> (v, u: instantaneous)	
-        call avg6(stat(1,31),vy,vy,vz,alpha,beta,ntot,'v2w')   ! <vvw> (v, w: instantaneous) 
+        call avg6(stat(1,28),vx,vx,vy,alpha,beta,ntot,'u2v')   ! <uuv> (u, v: instantaneous)
+        call avg6(stat(1,29),vx,vx,vz,alpha,beta,ntot,'u2w')   ! <uuw> (u, w: instantaneous)
+        call avg6(stat(1,30),vy,vy,vx,alpha,beta,ntot,'v2v')   ! <vvu> (v, u: instantaneous)
+        call avg6(stat(1,31),vy,vy,vz,alpha,beta,ntot,'v2w')   ! <vvw> (v, w: instantaneous)
 
         call avg6(stat(1,32),vz,vz,vx,alpha,beta,ntot,'w2u')   ! <wwu> (w, u: instantaneous)
         call avg6(stat(1,33),vz,vz,vy,alpha,beta,ntot,'w2v')   ! <wwv> (w, v: instantaneous)
-        call avg6(stat(1,34),vx,vy,vz,alpha,beta,ntot,'uvw')   ! <uvw> (u, v, w: instantaneous) 	
+        call avg6(stat(1,34),vx,vy,vz,alpha,beta,ntot,'uvw')   ! <uvw> (u, v, w: instantaneous)
 
-        call avg8(stat(1,35),vx,vx,vx,vx,alpha,beta,ntot,'u4')      ! <uuuu> (u: instantaneous)     
+        call avg8(stat(1,35),vx,vx,vx,vx,alpha,beta,ntot,'u4')      ! <uuuu> (u: instantaneous)
         call avg8(stat(1,36),vy,vy,vy,vy,alpha,beta,ntot,'v4')      ! <vvvv> (v: instantaneous)
-        call avg8(stat(1,37),vz,vz,vz,vz,alpha,beta,ntot,'w4')      ! <wwww> (w: instantaneous)	 
-        call avg8 (stat(1,38),p0,p0,p0,p0,alpha,beta,ntot,'p4')     ! <pppp> (p: instantaneous) 
+        call avg8(stat(1,37),vz,vz,vz,vz,alpha,beta,ntot,'w4')      ! <wwww> (w: instantaneous)
+        call avg8 (stat(1,38),p0,p0,p0,p0,alpha,beta,ntot,'p4')     ! <pppp> (p: instantaneous)
 
-        call avg8(stat(1,39),vx,vx,vx,vy,alpha,beta,ntot,'u4')      ! <uuuv> (u: instantaneous)     
+        call avg8(stat(1,39),vx,vx,vx,vy,alpha,beta,ntot,'u4')      ! <uuuv> (u: instantaneous)
         call avg8(stat(1,40),vx,vx,vy,vy,alpha,beta,ntot,'v4')      ! <uuvv> (v: instantaneous)
-        call avg8(stat(1,41),vx,vy,vy,vy,alpha,beta,ntot,'w4')      ! <uvvv> (w: instantaneous)	 
+        call avg8(stat(1,41),vx,vy,vy,vy,alpha,beta,ntot,'w4')      ! <uvvv> (w: instantaneous)
 
         call avg7(stat(1,42),duidxj,alpha,beta,ntot,'e11')   ! e11: <du/dx.du/dx + du/dy.du/dy + du/dz.du/dz> (u: instantaneous)
-        call avg7(stat(1,43),duidxj,alpha,beta,ntot,'e22')   ! e22: <dv/dx.dv/dx + dv/dy.dv/dy + dv/dz.dv/dz> (v: instantaneous) 
+        call avg7(stat(1,43),duidxj,alpha,beta,ntot,'e22')   ! e22: <dv/dx.dv/dx + dv/dy.dv/dy + dv/dz.dv/dz> (v: instantaneous)
         call avg7(stat(1,44),duidxj,alpha,beta,ntot,'e33')   ! e33: <dw/dx.dw/dx + dw/dy.dw/dy + dw/dz.dw/dz> (w: instantaneous)
 
-        call avg7(stat(1,45),duidxj,alpha,beta,ntot,'e12')   ! e12: <du/dx.dv/dx + du/dy.dv/dy + du/dz.dv/dz> (u, v: instantaneous)       
-        call avg7(stat(1,46),duidxj,alpha,beta,ntot,'e13')   ! e13: <du/dx.dw/dx + du/dy.dw/dy + du/dz.dw/dz> (u, w: instantaneous) 
-        call avg7(stat(1,47),duidxj,alpha,beta,ntot,'e23')   ! e23: <dv/dx.dw/dx + dv/dy.dw/dy + dv/dz.dw/dz> (v, w: instantaneous) 
+        call avg7(stat(1,45),duidxj,alpha,beta,ntot,'e12')   ! e12: <du/dx.dv/dx + du/dy.dv/dy + du/dz.dv/dz> (u, v: instantaneous)
+        call avg7(stat(1,46),duidxj,alpha,beta,ntot,'e13')   ! e13: <du/dx.dw/dx + du/dy.dw/dy + du/dz.dw/dz> (u, w: instantaneous)
+        call avg7(stat(1,47),duidxj,alpha,beta,ntot,'e23')   ! e23: <dv/dx.dw/dx + dv/dy.dw/dy + dv/dz.dw/dz> (v, w: instantaneous)
 
         call avg5(stat(1,48),p0,duidxj,alpha,beta,ntot,'nnn') ! <du/dx>
         call avg5(stat(1,49),p0,duidxj,alpha,beta,ntot,'ooo') ! <du/dy>
@@ -283,11 +278,11 @@ C%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
       endif
 
-C%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%C 
+C%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%C
 C ------------------------------------------------------------------------------- C
 C --------- Extract z-slices of the averaged quantities  ------------------------ C
 C ------------------------------------------------------------------------------- C
-C%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%C 
+C%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%C
 
       if (mod(nrec,iastep).eq.0.and.istep.ge.1) then
 
@@ -314,7 +309,7 @@ C%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
          call rot_1st(stat_rot(1,12),stat_rot(1,13),stat_rot(1,14),
      $        stat(1,12),stat(1,13),stat(1,14))
-  
+
          call rot_2nd(stat_rot(1,15),stat_rot(1,16),stat_rot(1,17),
      $       stat_rot(1,18),stat_rot(1,19),stat_rot(1,20),
      $       stat_rot(1,21),stat_rot(1,22),stat_rot(1,23),
@@ -407,20 +402,20 @@ c    $       stat_extra(1,1),stat_extra(1,2),stat_extra(1,3),
 c    $       stat_extra(1,4),stat_extra(1,5),stat_extra(1,6),
 c    $       stat_extra(1,7),stat_extra(1,8),stat_extra(1,9))
 
-        
+
         if(nid.eq.0) indts = indts + 1
 
         do k=1,nslices
 
         call extract_z_slice(zslices(k), stat_xy, nElperFace, stat_rot,
-     $    nstat,w1) 
-        
+     $    nstat,w1)
+
         if(nid.eq.0) then
-C%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%C 
+C%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%C
 C ------------------------------------------------------------------------------- C
 C ------------ Write statistics to file ----------------------------------------- C
 C ------------------------------------------------------------------------------- C
-C%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%C 
+C%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%C
         write(pippo,'(F7.3, A, i4.4)') zslices(k), '_',  indts
 
         inputname1 = 'statistics/recordings/stat_z_'//
@@ -431,18 +426,18 @@ C%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 C%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%C
 C ------------------------------------------------------------------------------- C
 C ----- Inputname1 -------------------------------------------------------------- C
-C ------------------------------------------------------------------------------- C	    
+C ------------------------------------------------------------------------------- C
 C%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%C
 
         open(unit=33,form='unformatted',file=inputname1)
 
         m=lx1*ly1*nElperFace
 
-        write(val1,'(1p,e17.9)') 1./param(2)                 ! Reynolds number	  
+        write(val1,'(1p,e17.9)') 1./param(2)                 ! Reynolds number
         write(val2,'(1p,3e17.9)') domain_x,domain_y,domain_z ! domain size
-        write(val3,'(i9)') nElperFace                       ! number of elements 
+        write(val3,'(i9)') nElperFace                       ! number of elements
         write(val4,'(3i9)') nx1-1,ny1-1,nz1-1                ! polynomial order
-        write(val5,'(i9)')       nstat                      ! number of saved statistics 
+        write(val5,'(i9)')       nstat                      ! number of saved statistics
         write(val6,'(1p,e17.9)') times                      ! start time
         write(val7,'(1p,e17.9)') time                       ! end time
         write(val8,'(1p,e17.9)') atime                     ! average time
@@ -475,7 +470,7 @@ C%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
         do i=1,nstat
-          write(33) (stat_xy(j,i),j=1,m)  
+          write(33) (stat_xy(j,i),j=1,m)
         enddo
 
         close(33)
@@ -505,11 +500,9 @@ c-----------------------------------------------------------------------
 !     read parameters AVG
       subroutine AVG_param_in(fid)
         use AVG
-      implicit none
 
-      include 'SIZE_DEF'
+
       include 'SIZE'            !
-      include 'PARALLEL_DEF' 
       include 'PARALLEL'        ! ISIZE, WDSIZE, LSIZE,CSIZE
 
 !     argument list
@@ -519,7 +512,7 @@ c-----------------------------------------------------------------------
       integer ierr
 
 !     namelists
-      namelist /AVG_LIST/ tstart,nSlices,nElperFace,delta_time_avg, 
+      namelist /AVG_LIST/ tstart,nSlices,nElperFace,delta_time_avg,
      $                    zslices
 
 !-----------------------------------------------------------------------
@@ -550,11 +543,9 @@ c     zslices = (/0.,1.,2.,5.,10./)
 
       subroutine AVG_param_out(fid)
         use AVG
-      implicit none
 
-      include 'SIZE_DEF'
+
       include 'SIZE'            !
-      include 'PARALLEL_DEF' 
       include 'PARALLEL'        ! ISIZE, WDSIZE, LSIZE,CSIZE
 
 !     argument list
@@ -564,7 +555,7 @@ c     zslices = (/0.,1.,2.,5.,10./)
       integer ierr
 
 !     namelists
-      namelist /AVG_LIST/ tstart,nSlices,nElperFace,delta_time_avg, 
+      namelist /AVG_LIST/ tstart,nSlices,nElperFace,delta_time_avg,
      $                    zslices
 !-----------------------------------------------------------------------
       ierr=0
@@ -579,7 +570,7 @@ c     zslices = (/0.,1.,2.,5.,10./)
 
       subroutine avg4(avg,f,g,alpha,beta,n,name)
 c     subroutine avg4(avg,f,g,alpha,beta,n,name,ifverbose)
-        implicit none
+
 
       real,intent(inout) ::  avg(n)
       real, intent(in) :: alpha, beta, f(n),g(n)
@@ -605,8 +596,7 @@ c
 c-----------------------------------------------------------------------
 
       subroutine avg5(avg,f,duidxj,alpha,beta,n,name)
-        implicit none
-      include 'SIZE_DEF'
+
       include 'SIZE'
 
         real,intent(inout) ::  avg(n)
@@ -655,117 +645,117 @@ c-----------------------------------------------------------------------
       elseif (name .eq. 'omz') then  ! <omz>
          do k=1,n
             avg(k) = alpha*avg(k) + beta*(duidxj(k,1,8)-duidxj(k,1,4))
-         enddo   
+         enddo
       elseif (name .eq. 'ozz') then  ! <omz*omz>
          do k=1,n
             avg(k) = alpha*avg(k) + beta*
      $     (duidxj(k,1,8)-duidxj(k,1,4))**2
-         enddo 
+         enddo
       elseif (name .eq. 'oyy') then  ! <omy*omy>
          do k=1,n
             avg(k) = alpha*avg(k) + beta*
      $     (duidxj(k,1,7)-duidxj(k,1,6))**2
-         enddo 
+         enddo
       elseif (name .eq. 'oxx') then  ! <omx*omx>
          do k=1,n
             avg(k) = alpha*avg(k) + beta*
      $     (duidxj(k,1,9)-duidxj(k,1,5))**2
-         enddo 
+         enddo
       elseif (name .eq. 'aaa') then  ! <dw/dx*dw/dx>
          do k=1,n
             avg(k) = alpha*avg(k) + beta*duidxj(k,1,6)*duidxj(k,1,6)
-         enddo  
+         enddo
       elseif (name .eq. 'bbb') then  ! <dw/dy*dw/dy>
          do k=1,n
             avg(k) = alpha*avg(k) + beta*duidxj(k,1,9)*duidxj(k,1,9)
-         enddo 
+         enddo
       elseif (name .eq. 'ccc') then  ! <dw/dx*dw/dy>
          do k=1,n
             avg(k) = alpha*avg(k) + beta*duidxj(k,1,6)*duidxj(k,1,9)
-         enddo 
+         enddo
       elseif (name .eq. 'ddd') then  ! <du/dx*du/dx>
          do k=1,n
             avg(k) = alpha*avg(k) + beta*duidxj(k,1,1)*duidxj(k,1,1)
-         enddo 
+         enddo
       elseif (name .eq. 'eee') then  ! <du/dy*du/dy>
          do k=1,n
             avg(k) = alpha*avg(k) + beta*duidxj(k,1,4)*duidxj(k,1,4)
-         enddo    
+         enddo
       elseif (name .eq. 'fff') then  ! <du/dx*du/dy>
          do k=1,n
             avg(k) = alpha*avg(k) + beta*duidxj(k,1,1)*duidxj(k,1,4)
-         enddo  
+         enddo
       elseif (name .eq. 'ggg') then  ! <dv/dx*dv/dx>
          do k=1,n
             avg(k) = alpha*avg(k) + beta*duidxj(k,1,8)*duidxj(k,1,8)
-         enddo  
+         enddo
       elseif (name .eq. 'hhh') then  ! <dv/dy*dv/dy>
          do k=1,n
             avg(k) = alpha*avg(k) + beta*duidxj(k,1,2)*duidxj(k,1,2)
-         enddo 
+         enddo
       elseif (name .eq. 'iii') then  ! <dv/dx*dv/dy>
          do k=1,n
             avg(k) = alpha*avg(k) + beta*duidxj(k,1,8)*duidxj(k,1,2)
-         enddo 
+         enddo
       elseif (name .eq. 'jjj') then  ! <du/dx*dv/dx>
          do k=1,n
             avg(k) = alpha*avg(k) + beta*duidxj(k,1,1)*duidxj(k,1,8)
-         enddo 
+         enddo
       elseif (name .eq. 'kkk') then  ! <du/dy*dv/dy>
          do k=1,n
             avg(k) = alpha*avg(k) + beta*duidxj(k,1,4)*duidxj(k,1,2)
-         enddo 
+         enddo
       elseif (name .eq. 'lll') then  ! <du/dx*dv/dy>
          do k=1,n
             avg(k) = alpha*avg(k) + beta*duidxj(k,1,1)*duidxj(k,1,2)
-         enddo 
+         enddo
       elseif (name .eq. 'mmm') then  ! <du/dy*dv/dx>
          do k=1,n
             avg(k) = alpha*avg(k) + beta*duidxj(k,1,4)*duidxj(k,1,8)
-         enddo    
+         enddo
       elseif (name .eq. 'nnn') then  ! <du/dx>
          do k=1,n
             avg(k) = alpha*avg(k) + beta*duidxj(k,1,1)
-         enddo  
+         enddo
       elseif (name .eq. 'ooo') then  ! <du/dy>
          do k=1,n
             avg(k) = alpha*avg(k) + beta*duidxj(k,1,4)
-         enddo  
+         enddo
       elseif (name .eq. 'ppp') then  ! <du/dz>
          do k=1,n
             avg(k) = alpha*avg(k) + beta*duidxj(k,1,7)
-         enddo  
+         enddo
       elseif (name .eq. 'qqq') then  ! <dv/dx>
          do k=1,n
             avg(k) = alpha*avg(k) + beta*duidxj(k,1,8)
-         enddo  
+         enddo
       elseif (name .eq. 'rrr') then  ! <dv/dy>
          do k=1,n
             avg(k) = alpha*avg(k) + beta*duidxj(k,1,2)
-         enddo  
+         enddo
       elseif (name .eq. 'sss') then  ! <dv/dz>
          do k=1,n
             avg(k) = alpha*avg(k) + beta*duidxj(k,1,5)
-         enddo  
+         enddo
       elseif (name .eq. 'ttt') then  ! <dw/dx>
          do k=1,n
             avg(k) = alpha*avg(k) + beta*duidxj(k,1,6)
-         enddo 
+         enddo
       elseif (name .eq. 'uuu') then  ! <dw/dy>
          do k=1,n
             avg(k) = alpha*avg(k) + beta*duidxj(k,1,9)
-         enddo 
+         enddo
       elseif (name .eq. 'vvv') then  ! <dw/dz>
          do k=1,n
             avg(k) = alpha*avg(k) + beta*duidxj(k,1,3)
-         enddo 
+         enddo
       endif
       return
       end subroutine avg5
 c----------------------------------------------------------------------
 
       subroutine avg6(avg,f,g,h,alpha,beta,n,name)
-        implicit none
+
 
         real,intent(inout) ::  avg(n)
         real, intent(in) :: alpha, beta, f(n), g(n), h(n)
@@ -781,12 +771,11 @@ c----------------------------------------------------------------------
 c-----------------------------------------------------------------------
 
       subroutine avg7(avg,duidxj,alpha,beta,n,name)
-        implicit none
-      include 'SIZE_DEF'
+
       include 'SIZE'
 
         real,intent(inout) ::  avg(n)
-        real, intent(in) :: alpha, beta, 
+        real, intent(in) :: alpha, beta,
      $      duidxj(lx1*ly1*lz1,lelt,1:3*ldim)
         integer, intent(in) :: n
         character*3,intent(in) :: name
@@ -795,37 +784,37 @@ c-----------------------------------------------------------------------
       if (name .eq. 'e11') then
          do k=1,n
             avg(k) = alpha*avg(k) + beta*(duidxj(k,1,1)*duidxj(k,1,1) +
-     $           duidxj(k,1,4)*duidxj(k,1,4) + 
+     $           duidxj(k,1,4)*duidxj(k,1,4) +
      $           duidxj(k,1,7)*duidxj(k,1,7))
          enddo
       elseif (name .eq. 'e22') then
          do k=1,n
             avg(k) = alpha*avg(k) + beta*(duidxj(k,1,8)*duidxj(k,1,8) +
-     $           duidxj(k,1,2)*duidxj(k,1,2) + 
+     $           duidxj(k,1,2)*duidxj(k,1,2) +
      $           duidxj(k,1,5)*duidxj(k,1,5))
          enddo
       elseif (name .eq. 'e33') then
          do k=1,n
             avg(k) = alpha*avg(k) + beta*(duidxj(k,1,6)*duidxj(k,1,6) +
-     $           duidxj(k,1,9)*duidxj(k,1,9) + 
+     $           duidxj(k,1,9)*duidxj(k,1,9) +
      $           duidxj(k,1,3)*duidxj(k,1,3))
          enddo
       elseif (name .eq. 'e12') then
          do k=1,n
             avg(k) = alpha*avg(k) + beta*(duidxj(k,1,1)*duidxj(k,1,8) +
-     $           duidxj(k,1,4)*duidxj(k,1,2) + 
+     $           duidxj(k,1,4)*duidxj(k,1,2) +
      $           duidxj(k,1,7)*duidxj(k,1,5))
          enddo
       elseif (name .eq. 'e13') then
          do k=1,n
             avg(k) = alpha*avg(k) + beta*(duidxj(k,1,1)*duidxj(k,1,6) +
-     $           duidxj(k,1,4)*duidxj(k,1,9) + 
+     $           duidxj(k,1,4)*duidxj(k,1,9) +
      $           duidxj(k,1,7)*duidxj(k,1,3))
          enddo
       elseif (name .eq. 'e23') then
          do k=1,n
             avg(k) = alpha*avg(k) + beta*(duidxj(k,1,8)*duidxj(k,1,6) +
-     $           duidxj(k,1,2)*duidxj(k,1,9) + 
+     $           duidxj(k,1,2)*duidxj(k,1,9) +
      $           duidxj(k,1,5)*duidxj(k,1,3))
          enddo
       endif
@@ -834,7 +823,7 @@ c-----------------------------------------------------------------------
 c-----------------------------------------------------------------------
 
       subroutine avg8(avg,f,g,h,s,alpha,beta,n,name)
-        implicit none
+
 
         real,intent(inout) ::  avg(n)
         real, intent(in) :: alpha, beta, f(n), g(n), h(n), s(n)
@@ -849,14 +838,11 @@ c-----------------------------------------------------------------------
 c-----------------------------------------------------------------------
 
       subroutine comp_derivat(duidxj,u,v,w,ur,us,ut,vr,vs,vt,wr,ws,wt)
-        implicit none
+
         external :: local_grad3 ! defined in navier1.f
 c
-      include 'SIZE_DEF'
       include 'SIZE'
-      include 'DXYZ_DEF'
       include 'DXYZ'
-      include 'GEOM_DEF'
       include 'GEOM'
 
       real,intent(out) ::  duidxj(lx1*ly1*lz1,lelt,1:3*ldim)
@@ -916,13 +902,11 @@ c
       ! adapted from convert_vel I could only find in Azads scratch..
 
       subroutine convert_vor(or,ot,oz,omega_cart,n)
-        implicit none
 
-      include 'SIZE_DEF'
+
       include 'SIZE'
-      include 'GEOM_DEF' ! xm1
       include 'GEOM'
-      include 'USERPAR' 
+      include 'USERPAR'
 
       real, intent(out) :: or(n),ot(n),oz(n)
       real, intent(in) :: omega_cart(n,3)
@@ -945,19 +929,19 @@ c
             x_unbent=(xm1(i,1,1,1)+z_unbent*s)/c-bent_radius
           endif
 
-        else  
+        else
          x_unbent = xm1(i,1,1,1)
          if (abs(bent_phi).gt.1e-10) x_unbent = x_unbent - bent_radius
         endif
 
         angle=atan2(ym1(i,1,1,1),x_unbent)
         c = cos(angle)
-        s = sin(angle) 
+        s = sin(angle)
 
         or(i) =  c*omega_cart(i,1) + s*omega_cart(i,2)
         ot(i) = -s*omega_cart(i,1) + c*omega_cart(i,2)
         oz(i) = omega_cart(i,3)
-      enddo 
+      enddo
       return
       end subroutine convert_vor
 
@@ -965,14 +949,11 @@ C###############################################################################
 C#################################################################################
 C#################################################################################
       subroutine rot_1st(u_zeta,u_r,u_s,ui,vi,wi)
-        implicit none
-      include 'SIZE_DEF'
+
       include 'SIZE'
-      include 'GEOM_DEF'
       include 'GEOM'
-      include 'PARALLEL_DEF'
       include 'PARALLEL'
-      include 'USERPAR' 
+      include 'USERPAR'
 
       integer i,e
       real u_zeta(nx1*ny1*nz1*nelv),
@@ -1017,14 +998,11 @@ C###############################################################################
      $     tn_rot31,tn_rot32,tn_rot33,
      $     tn_11,tn_12,tn_13,tn_21,tn_22,tn_23,
      $     tn_31,tn_32,tn_33)
-        implicit none
-      include 'SIZE_DEF'
+
       include 'SIZE'
-      include 'GEOM_DEF'
       include 'GEOM'
-      include 'PARALLEL_DEF'
       include 'PARALLEL'
-      include 'USERPAR' 
+      include 'USERPAR'
 
 
       integer n, i,j,p,q,m
@@ -1048,10 +1026,10 @@ C###############################################################################
 
       n = nx1*ny1*nz1*nelv
 
-C     initialize the rotated tensor      
+C     initialize the rotated tensor
       call rzero(tn_rot ,9*lx1*ly1*lz1*lelt)
 
-C     initialize the tensor suppose to be rotated with values fron STAT(*,*)      
+C     initialize the tensor suppose to be rotated with values fron STAT(*,*)
       do m=1,n
          tn(1,1,m) = tn_11(m)
          tn(1,2,m) = tn_12(m)
@@ -1065,7 +1043,7 @@ C     initialize the tensor suppose to be rotated with values fron STAT(*,*)
       enddo
 
 C     generating the rotation matrix
-      do m=1,n  
+      do m=1,n
         rot(1,1,m) = 1.0
         rot(1,2,m) = 0.0
         rot(1,3,m) = 0.0
@@ -1083,8 +1061,8 @@ C     generating the rotation matrix
               c = cos(-angle)
               s = sin(-angle)
             else
-              c = cos(-bent_phi) 
-              s = sin(-bent_phi) 
+              c = cos(-bent_phi)
+              s = sin(-bent_phi)
             endif
 
             rot(1,1,m) = c
@@ -1095,7 +1073,7 @@ C     generating the rotation matrix
             rot(2,3,m) = 0.0
             rot(3,1,m) = s
             rot(3,2,m) = 0.0
-            rot(3,3,m) = c 
+            rot(3,3,m) = c
         endif
         endif
       enddo
@@ -1105,7 +1083,7 @@ C     generating the rotation matrix
             do j=1,3
                do p=1,3
                   do q =1,3
-                     tn_rot(i,j,m) = tn_rot(i,j,m) + 
+                     tn_rot(i,j,m) = tn_rot(i,j,m) +
      $                    rot(i,p,m)*tn(p,q,m)*rot(j,q,m)
                   enddo
                enddo
@@ -1150,14 +1128,11 @@ C###############################################################################
      $     tn_311,tn_312,tn_313,
      $     tn_321,tn_322,tn_323,
      $     tn_331,tn_332,tn_333)
-        implicit none
-      include 'SIZE_DEF'
+
       include 'SIZE'
-      include 'GEOM_DEF'
       include 'GEOM'
-      include 'PARALLEL_DEF'
       include 'PARALLEL'
-      include 'USERPAR' 
+      include 'USERPAR'
 
       integer n,i,j,k,p,q,r,m
       real tn_rot111(nx1*ny1*nz1*nelv),tn_rot112(nx1*ny1*nz1*nelv),
@@ -1197,10 +1172,10 @@ C###############################################################################
       real c, s, angle
 
       n = nx1*ny1*nz1*nelv
-C     initialize the rotated tensor      
+C     initialize the rotated tensor
       call rzero(tn_rot ,27*nx1*ny1*nz1*lelt)
 
-C     initialize the tensor suppose to be rotated with values fron STAT(*,*)      
+C     initialize the tensor suppose to be rotated with values fron STAT(*,*)
       do m=1,n
          tn(1,1,1,m) = tn_111(m)
          tn(1,1,2,m) = tn_112(m)
@@ -1232,7 +1207,7 @@ C     initialize the tensor suppose to be rotated with values fron STAT(*,*)
       enddo
 
 C     generating the rotation matrix
-      do m=1,n  
+      do m=1,n
         rot(1,1,m) = 1.0
         rot(1,2,m) = 0.0
         rot(1,3,m) = 0.0
@@ -1250,8 +1225,8 @@ C     generating the rotation matrix
               c = cos(-angle)
               s = sin(-angle)
             else
-              c = cos(-bent_phi) 
-              s = sin(-bent_phi) 
+              c = cos(-bent_phi)
+              s = sin(-bent_phi)
             endif
 
             rot(1,1,m) = c
@@ -1262,7 +1237,7 @@ C     generating the rotation matrix
             rot(2,3,m) = 0.0
             rot(3,1,m) = s
             rot(3,2,m) = 0.0
-            rot(3,3,m) = c 
+            rot(3,3,m) = c
         endif
         endif
       enddo
@@ -1274,11 +1249,11 @@ C     generating the rotation matrix
                do p=1,3
                   do q=1,3
                      do r=1,3
-                        do m=1,n 
-                           tn_rot(i,j,k,m) = tn_rot(i,j,k,m) + 
+                        do m=1,n
+                           tn_rot(i,j,k,m) = tn_rot(i,j,k,m) +
      $                          rot(i,p,m)*rot(j,q,m)*
      $                          rot(k,r,m)*tn(p,q,r,m)
-                        enddo                        
+                        enddo
                      enddo
                   enddo
                enddo
@@ -1316,7 +1291,7 @@ C     generating the rotation matrix
          tn_rot332(m) = tn_rot(3,3,2,m)
          tn_rot333(m) = tn_rot(3,3,3,m)
       enddo
-      
+
 
       return
       end
@@ -1368,13 +1343,13 @@ c         uvww = uvwwi(i)
 c
 c
 c         u_zeta4(i)     = wwww
-c         u_r4(i)        = uuuu*(s**4) + 4*uuuv*(s**3)*c + 
+c         u_r4(i)        = uuuu*(s**4) + 4*uuuv*(s**3)*c +
 c     $        6*uuvv*(s**2)*(c**2) + 4*uvvv*s*(c**3) + vvvv*(c**4)
-c         u_s4(i)        = uuuu*(c**4) - 4*uuuv*(c**3)*s + 
+c         u_s4(i)        = uuuu*(c**4) - 4*uuuv*(c**3)*s +
 c     $        6*uuvv*(c**2)*(s**2) - 4*uvvv*c*(s**3) + vvvv*(s**4)
 c         u_zeta3u_r(i)  = -uwww*s - vwww*c
 c         u_zeta2u_r2(i) = uuww*(s**2) + 2*uvww*s*c + vvww*(c**2)
-c         u_zetau_r3(i)  = -uuuw*(s**3) - 3*uuvw*(s**2)*c - 
+c         u_zetau_r3(i)  = -uuuw*(s**3) - 3*uuvw*(s**2)*c -
 c     $        3*uvvw*s*(c**2) - vvvw*(c**3)
 c
 c      enddo
@@ -1384,25 +1359,22 @@ c      end
 cC#################################################################################
 cC#################################################################################
 cC#################################################################################
-      
+
 C-----------------------------------------------------------------------
-C%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%C      
-C%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%C      
-C%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%C 
+C%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%C
+C%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%C
+C%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%C
 c-----------------------------------------------------------------------
 
         ! extract the given z-value (must be mesh aligned)
         ! and contiguous in element indices
       subroutine extract_z_slice(z_val,stat_xy,nelpFac,stat3d,nstat,w1)
-        implicit none
 
-      include 'SIZE_DEF'
+
       include 'SIZE'
-      include 'GEOM_DEF'
       include 'GEOM'
-      include 'PARALLEL_DEF'
       include 'PARALLEL'
-      include 'USERPAR' 
+      include 'USERPAR'
 
       real angle, circumf, z_unbent, c, s
 

@@ -38,7 +38,7 @@ except OSError:
 try:
 	os.remove('base.rea')
 	os.remove('base2d.rea')
-	os.remove('pipe.map')
+	os.remove('pipe.ma2')
 	os.remove('pipe.rea')
 	os.remove('pipe.re2')
 	os.remove('makefile')
@@ -47,10 +47,16 @@ try:
 	os.remove('pipe.f')
 	os.remove('compiler.out')
 	shutil.rmtree('obj')
-	os.remove('nek5000')
 	os.remove('SESSION.NAME')
-	os.remove('pipe.sch')
-	os.remove('sem_restart.txt')
 	print('removing simulation files')
 except OSError:
 	print('simulation files not present')
+
+#clean run files
+try:
+	os.remove('nek5000')
+	os.remove('pipe.sch')
+	os.remove('sem_restart.txt')
+	print('removing run files')
+except OSError:
+	print('run files not present')
