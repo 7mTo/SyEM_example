@@ -38,7 +38,6 @@ c-----------------------------------------------------------------------
       subroutine userchk
       use AVG, only: tstart
 
-
       include 'SIZE'  ! L[XYZ]1,LELV,NID
       include 'MASS' ! BM1
       include 'TSTEP' ! ISTEP,IOSTEP
@@ -69,13 +68,13 @@ c     In contrast to outpost(), which does not average
 c       when writing divergence in pressure ouput
 c     -> therefore, slight discrepancy < ~ factor 2
 
-c      divmax = glmax(divm1, nx1*ny1*nz1*nelv)
+      divmax = glmax(divm1, nx1*ny1*nz1*nelv)
 
       if (nid.eq.0) write(*,*) '||div||_max', Divmax
 
 c     output divergence (in pressure field)
 c     if (mod(ISTEP,IOSTEP).eq.0.and. istep.gt.0) then
-        call outpost(vx,vy,vz,divv,t,'div')
+c        call outpost(vx,vy,vz,divv,t,'div')
 c     endif
 
       if ((iostep.gt.0.and.istep.gt.0.and.mod(ISTEP,IOSTEP).eq.0).or.
@@ -122,7 +121,6 @@ c     NOTE ::: This subroutine MAY NOT be called by every process
       use SEM, only: u_sem, v_sem, w_sem, bulk_vel_diff
 
 
-
       include 'SIZE'  ! L[XYZ]1,LELV
       include 'PARALLEL'  ! GLLEL
       include 'INPUT'  ! IF3D
@@ -147,7 +145,6 @@ c-----------------------------------------------------------------------
       subroutine useric (ix,iy,iz,ieg)
       use SEM, only: nElinlet, umean_inlet
 
-
       include 'SIZE'  ! L[XYZ]1,LELV
       include 'NEKUSE'! U[XYZ], [XYZ]
       include 'USERPAR'
@@ -161,7 +158,6 @@ c     Prescribe mean inflow profile used by DFSEM as IC
 
       ex = mod(ieg-1,nElInlet)+1
 
-      vel = 0
       vel = umean_inlet(ix,iy,ex)
 
       Uy = 0.
@@ -193,7 +189,6 @@ c-----------------------------------------------------------------------
       subroutine usrdat
       use SEM, only: zbmin, zbmax, ybmax,
      &   sigma_max, z_inlet
-
       real, external :: glmin, glmax ! defined in math.f
 
       include 'SIZE' ! nelv
@@ -238,7 +233,6 @@ c     xbmax = glmax(xc,8*nelv)
 c-----------------------------------------------------------------------
 
       subroutine usrdat2
-
       include 'SIZE' ! nelv
       include 'GEOM'
       include 'NEKUSE' ! XM1
@@ -288,7 +282,6 @@ c
 c-----------------------------------------------------------------------
 
       subroutine usrdat3
-
       return
       end
 
