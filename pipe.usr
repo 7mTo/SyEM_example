@@ -69,13 +69,13 @@ c     In contrast to outpost(), which does not average
 c       when writing divergence in pressure ouput
 c     -> therefore, slight discrepancy < ~ factor 2
 
-      divmax = glmax(divm1, nx1*ny1*nz1*nelv)
+c      divmax = glmax(divm1, nx1*ny1*nz1*nelv)
 
       if (nid.eq.0) write(*,*) '||div||_max', Divmax
 
 c     output divergence (in pressure field)
 c     if (mod(ISTEP,IOSTEP).eq.0.and. istep.gt.0) then
-c        call outpost(vx,vy,vz,divv,t,'div')
+        call outpost(vx,vy,vz,divv,t,'div')
 c     endif
 
       if ((iostep.gt.0.and.istep.gt.0.and.mod(ISTEP,IOSTEP).eq.0).or.
@@ -161,6 +161,7 @@ c     Prescribe mean inflow profile used by DFSEM as IC
 
       ex = mod(ieg-1,nElInlet)+1
 
+      vel = 0
       vel = umean_inlet(ix,iy,ex)
 
       Uy = 0.

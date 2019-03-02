@@ -10,6 +10,7 @@ makenek.bak
 *.re2
 *.map
 *.ma2
+*.upar
 makefile
 *.mod
 obj

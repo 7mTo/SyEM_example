@@ -37,7 +37,7 @@ USR="avg_all.o sem.o IO_tools.o uparam.o chkpoint.o"
 
 
 # generic compiler flags
-FFLAGS="-I./src_nek/ -I./src_usr/"
+FFLAGS="-I./src_nek/ -I./src_usr/ -mcmodel=medium"
 #G="-I./src_nek/ -I./src_usr/ -g -Wall -Wextra -Warray-temporaries -Wconversion -fbacktrace -ffree-line-length-0 -fcheck=all -ffpe-trap=zero,overflow,underflow -finit-real=nan"
 #G="-I./src_nek/ -I./src_usr/ -ggdb -fsanitize=address -fno-omit-frame-pointer"
 #valgrind -ggdb -Wunused
@@ -75,18 +75,6 @@ FFLAGS="-I./src_nek/ -I./src_usr/"
 #VISIT_STOP=true
 
 ###############################################################################
-# CUSTOM SOURCE FILES (in ./src_nek/)
-###############################################################################
-for srcfile in ./src_nek/*.f
-do
-    echo $srcfile
-    file="${srcfile##*/}"
-    echo safely moving "$file" to "$NEK_SOURCE_ROOT"
-    mv -n "$NEK_SOURCE_ROOT/$file" "$NEK_SOURCE_ROOT/$file.bkp"
-    cp "./src_nek/$file" "$NEK_SOURCE_ROOT/$file"
-done
-
-###############################################################################
 # DONT'T TOUCH WHAT FOLLOWS !!! :)
 ###############################################################################
 
@@ -120,15 +108,5 @@ set -o pipefail
 make_3rd_party 2>&1 | tee -a compiler.out
 make -j4 -f makefile 2>&1 | tee -a compiler.out
 set +o pipefail
-
-###############################################################################
-# RESTORE ORIGINAL SOURCE
-###############################################################################
-for srcfile in ./src_nek/*.f
-do
-    file="${srcfile##*/}"
-    echo restoring original $file in $NEK_SOURCE_ROOT
-    mv $NEK_SOURCE_ROOT/$file.bkp $NEK_SOURCE_ROOT/$file
-done
 
 exit 0
